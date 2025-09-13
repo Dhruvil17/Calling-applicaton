@@ -58,7 +58,7 @@ exports.voiceResponse = function voiceResponse(requestBody) {
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <Response>
             <Dial callerId="${callerId}" answerOnBridge="true" timeLimit="5400" timeout="20">
-                <Client statusCallbackEvent="ringing answered completed" statusCallback="${config.appUrl}/twilioCallback" statusCallbackMethod="POST">
+                <Client statusCallbackEvent="ringing answered completed" statusCallback="https://frontend-calling-web-application.vercel.app/api/twilioCallback" statusCallbackMethod="POST">
                     <Identity>${identity}</Identity>
                 </Client>
             </Dial>
@@ -70,7 +70,7 @@ exports.voiceResponse = function voiceResponse(requestBody) {
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <Response>
             <Dial callerId="${callerId}" answerOnBridge="true" timeLimit="5400" timeout="20">
-                <Number statusCallbackEvent="initiated ringing answered completed" statusCallback="${config.appUrl}/twilioCallback" statusCallbackMethod="POST">
+                <Number statusCallbackEvent="initiated ringing answered completed" statusCallback="https://frontend-calling-web-application.vercel.app/api/twilioCallback" statusCallbackMethod="POST">
                     ${toNumberOrClientName}
                 </Number>
             </Dial>
