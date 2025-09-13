@@ -7,14 +7,15 @@ function App() {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [callStatus, setCallStatus] = useState("");
     const [callerId, setCallerId] = useState("");
-    const [incomingCall, setIncomingCall] = useState(null); // State to handle incoming call
+    const [incomingCall, setIncomingCall] = useState(null);
     const callerToken = useRef(null);
     const device = useRef(null);
 
     useEffect(() => {
         async function fetchToken() {
             try {
-                const response = await axios.get("http://localhost:3000/token");
+                const baseUrl = process.env.REACT_APP_BASE_URL;
+                const response = await axios.get(`${baseUrl}/token`);
                 callerToken.current = response.data.token;
                 setCallerId(response.data.identity);
             } catch (err) {
