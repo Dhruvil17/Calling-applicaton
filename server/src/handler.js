@@ -5,6 +5,7 @@ const config = require("./ENV_CONFIG");
 const nameGenerator = require("./nameGenerator/nameGenerator");
 
 let identity;
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 
 exports.tokenGenerator = function tokenGenerator() {
     try {
@@ -89,6 +90,34 @@ exports.voiceResponse = function voiceResponse(requestBody) {
     }
 };
 
+function aiVoiceBotCall(BLegCallUUID) {
+    console.log("Calling AI Voice BOT");
+    let data = querystring.stringify({
+        Url: process.env.AI_AGENT_BASE_URL,
+    });
+
+    let config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Calls/${BLegCallUUID}/Streams.json`,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization:
+                "Basic QUM5MTJiMzFjNDQxYTIzZjQzZDc0NzBkMzAxNDM3ODhjOToxOTJhYjRlOTI1OTMxMzllNWJiNzA4MzNiMmQ4MGJjMQ==",
+        },
+        data: data,
+    };
+
+    axios
+        .request(config)
+        .then((response) => {
+            console.log(JSON.stringify(response.data));
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+}
+
 exports.twilioCallback = function twilioCallback(requestBody, queryParams) {
     console.log("Twilio Status Callback received:");
     console.log("Body:", requestBody);
@@ -104,6 +133,8 @@ exports.twilioCallback = function twilioCallback(requestBody, queryParams) {
         CallDuration,
         Timestamp,
     } = requestBody;
+
+    aiVoiceBotCall(CallSid);
 
     console.log(`Call ${CallSid} status: ${CallStatus}`);
     console.log(`From: ${From} To: ${To}`);
