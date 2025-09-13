@@ -14,7 +14,7 @@ function App() {
     useEffect(() => {
         async function fetchToken() {
             try {
-                const baseUrl = process.env.REACT_APP_BASE_URL;
+                const baseUrl = import.meta.env.VITE_API_BASE_URL;
                 const response = await axios.get(`${baseUrl}/token`);
                 callerToken.current = response.data.token;
                 setCallerId(response.data.identity);
