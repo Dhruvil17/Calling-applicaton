@@ -116,7 +116,17 @@ function aiVoiceBotCall(BLegCallUUID) {
             console.log(JSON.stringify(response.data));
         })
         .catch((error) => {
-            console.log(error);
+            if (error.response) {
+                console.error(
+                    `AI Voice Bot Stream failed: ${error.response.status} - ${error.response.data.message}`
+                );
+                console.error(`Error code: ${error.response.data.code}`);
+            } else {
+                console.error(
+                    "AI Voice Bot Stream request failed:",
+                    error.message
+                );
+            }
         });
 }
 
@@ -136,7 +146,10 @@ exports.twilioCallback = function twilioCallback(requestBody, queryParams) {
         Timestamp,
     } = requestBody;
 
-    aiVoiceBotCall(CallSid);
+    if (CallStatus === "in-progress") {
+        console.log("AI voice bot call initiated");
+        aiVoiceBotCall(CallSid);
+    }
 
     console.log(`Call ${CallSid} status: ${CallStatus}`);
     console.log(`From: ${From} To: ${To}`);
