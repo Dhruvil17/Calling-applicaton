@@ -94,13 +94,10 @@ exports.voiceResponse = function voiceResponse(requestBody) {
 
 function aiVoiceBotCall(BLegCallUUID) {
     console.log("Calling AI Voice BOT");
-    console.log("AI_AGENT_BASE_URL:", process.env.AI_AGENT_BASE_URL);
 
     let data = querystring.stringify({
         Url: process.env.AI_AGENT_BASE_URL,
     });
-
-    console.log("Stream URL data:", data);
 
     let config = {
         method: "post",
@@ -113,9 +110,6 @@ function aiVoiceBotCall(BLegCallUUID) {
         },
         data: data,
     };
-
-    console.log("Full Stream API URL:", config.url);
-    console.log("Request config:", JSON.stringify(config, null, 2));
 
     axios
         .request(config)
