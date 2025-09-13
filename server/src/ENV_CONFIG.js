@@ -8,6 +8,7 @@ const twimlAppSid = process.env.TWILIO_TWIML_APP_SID;
 const API_KEY = process.env.TWILIO_API_KEY;
 const twilioSecret = process.env.TWILIO_API_SECRET;
 const appUrl = process.env.APP_URL;
+const frontendUrl = process.env.FRONTEND_URL;
 
 config.twilioAccountSid = twilioAccountSid;
 config.callerId = callerId;
@@ -16,5 +17,6 @@ config.twimlAppSid = twimlAppSid;
 config.apiKey = API_KEY;
 config.apiSecret = twilioSecret;
 config.appUrl = appUrl;
+config.frontendUrl = frontendUrl;
 
 module.exports = config;

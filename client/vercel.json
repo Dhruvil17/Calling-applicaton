@@ -4,5 +4,8 @@
             "source": "/api/:path*",
             "destination": "http://35.87.136.160:3000/:path*"
         }
-    ]
+    ],
+    "env": {
+        "FRONTEND_URL": "https://frontend-calling-web-application.vercel.app"
+    }
 }
