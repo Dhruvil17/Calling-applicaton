@@ -1,0 +1,144 @@
+const VoiceResponse = require("twilio").twiml.VoiceResponse;
+const AccessToken = require("twilio").jwt.AccessToken;
+const VoiceGrant = AccessToken.VoiceGrant;
+const config = require("./ENV_CONFIG");
+const nameGenerator = require("./nameGenerator/nameGenerator");
+
+let identity;
+
+exports.tokenGenerator = function tokenGenerator() {
+    try {
+        // generating a random name
+        identity = nameGenerator();
+
+        // Validate required config values
+        if (
+            !config.twilioAccountSid ||
+            !config.apiKey ||
+            !config.apiSecret ||
+            !config.twimlAppSid
+        ) {
+            throw new Error("Missing required Twilio configuration values");
+        }
+
+        const accessToken = new AccessToken(
+            config.twilioAccountSid,
+            config.apiKey,
+            config.apiSecret,
+            { identity }
+        );
+
+        const grant = new VoiceGrant({
+            outgoingApplicationSid: config.twimlAppSid,
+            incomingAllow: true,
+        });
+        accessToken.addGrant(grant);
+
+        console.log(`Generated token for identity: ${identity}`);
+
+        // Include identity and token in a JSON response
+        return {
+            identity: identity,
+            token: accessToken.toJwt(),
+        };
+    } catch (error) {
+        console.error("Error generating token:", error);
+        throw error;
+    }
+};
+
+exports.voiceResponse = function voiceResponse(requestBody) {
+    console.log(requestBody);
+    const toNumberOrClientName = requestBody.To;
+    const callerId = config.callerId;
+
+    // If the request to the /voice endpoint is TO your Twilio Number,
+    // then it is an incoming call towards your Twilio.Device.
+    if (toNumberOrClientName == callerId) {
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+        <Response>
+            <Dial callerId="${callerId}" answerOnBridge="true" timeLimit="5400" timeout="20">
+                <Client statusCallbackEvent="ringing answered completed" statusCallback="${config.appUrl}/twilioCallback" statusCallbackMethod="POST">
+                    <Identity>${identity}</Identity>
+                </Client>
+            </Dial>
+        </Response>`;
+
+        console.log("Generated XML:", xml);
+        return xml;
+    } else if (requestBody.To) {
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+        <Response>
+            <Dial callerId="${callerId}" answerOnBridge="true" timeLimit="5400" timeout="20">
+                <Number statusCallbackEvent="initiated ringing answered completed" statusCallback="${config.appUrl}/twilioCallback" statusCallbackMethod="POST">
+                    ${toNumberOrClientName}
+                </Number>
+            </Dial>
+        </Response>`;
+
+        console.log("Generated XML:", xml);
+        return xml;
+    } else {
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
+        <Response>
+            <Say>Thanks for calling!</Say>
+        </Response>`;
+
+        console.log("Generated XML:", xml);
+        return xml;
+    }
+};
+
+exports.twilioCallback = function twilioCallback(requestBody, queryParams) {
+    console.log("Twilio Status Callback received:");
+    console.log("Body:", requestBody);
+    console.log("Query params:", queryParams);
+
+    const {
+        CallSid,
+        CallStatus,
+        From,
+        To,
+        Direction,
+        Duration,
+        CallDuration,
+        Timestamp,
+    } = requestBody;
+
+    console.log(`Call ${CallSid} status: ${CallStatus}`);
+    console.log(`From: ${From} To: ${To}`);
+    console.log(`Direction: ${Direction}`);
+    console.log(`Duration: ${Duration || CallDuration} seconds`);
+
+    return "OK";
+};
+
+exports.hangup = function hangup(requestBody, queryParams) {
+    console.log("Hangup endpoint called:");
+    console.log("Body:", requestBody);
+    console.log("Query params:", queryParams);
+
+    const {
+        CallSid,
+        CallStatus,
+        From,
+        To,
+        Direction,
+        Duration,
+        CallDuration,
+        Timestamp,
+    } = requestBody;
+
+    console.log(`Hanging up call ${CallSid}`);
+    console.log(`Call status: ${CallStatus}`);
+    console.log(`From: ${From} To: ${To}`);
+    console.log(`Duration: ${Duration || CallDuration} seconds`);
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+    <Response>
+        <Hangup/>
+    </Response>`;
+
+    console.log("Generated hangup XML:", xml);
+    return xml;
+};
