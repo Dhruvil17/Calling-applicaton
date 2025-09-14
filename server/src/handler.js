@@ -60,7 +60,7 @@ exports.voiceResponse = function voiceResponse(requestBody) {
     if (toNumberOrClientName == callerId) {
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <Response>
-            <Dial callerId="${callerId}" answerOnBridge="true" timeLimit="5400" timeout="20">
+            <Dial callerId="${callerId}" answerOnBridge="true" timeLimit="600" timeout="20">
                 <Client statusCallbackEvent="ringing answered completed" statusCallback="${config.frontendUrl}/api/twilioCallback" statusCallbackMethod="POST">
                     <Identity>${identity}</Identity>
                 </Client>
@@ -72,7 +72,7 @@ exports.voiceResponse = function voiceResponse(requestBody) {
     } else if (requestBody.To) {
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
         <Response>
-            <Dial callerId="${callerId}" answerOnBridge="true" timeLimit="5400" timeout="20">
+            <Dial callerId="${callerId}" answerOnBridge="true" timeLimit="600" timeout="20">
                 <Number statusCallbackEvent="initiated ringing answered completed" statusCallback="${config.frontendUrl}/api/twilioCallback" statusCallbackMethod="POST">
                     ${toNumberOrClientName}
                 </Number>
